@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <style>
+        /* Add your styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            background-color: #f4f4f4;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-image: url(https://media.istockphoto.com/id/1205274326/photo/male-hand-showing-offering-a-new-dream-house-at-the-empty-field-with-copy-space.jpg?s=612x612&w=0&k=20&c=FoSq0uugQxhoCcML1pCdrXAuLzKHosgQXz4w4Z6nT3Q=);
+            height: 100%;
+            overflow-y: auto;
+        }
+      
+
+        header {
+            /* background-color: #0a4ee0; */
+            
+            color: rgb(67, 458, 455);
+            padding: 0px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 500px;
+            margin: 20px auto;
+            border-radius: 8px;
+            color: #d2fd37;
+            padding: 5px;
+            background-color:none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            height: 500px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #343030;
+            color: #dad1d1;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form {
+            margin-top:20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+        }
+
+        button {
+            background-color: #5473e4;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 150px;
+            border-radius: 5px;
+        }
+
+        #predictedPrice {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>House Price Prediction</h1>
+    </header>
+    <main>
+        <p> <b>Welcome to House Price Prediction Model !</b></p>
+
+        <form id="predictionForm">
+            <label for="beds"> Bedrooms:</label>
+            <select id="beds" name="beds">
+                <option value="" disabled selected>Select number of bedrooms</option>
+                {% for bedroom in bedrooms %}
+                    <option value="{{ bedroom }}">{{ bedroom }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="baths">Baths:</label>
+            <select id="baths" name="baths">
+                <option value="" disabled selected>Select number of bathrooms</option>
+                {% for bathroom in bathrooms %}
+                    <option value="{{ bathroom }}">{{ bathroom }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="size">Size:</label>
+            <select id="size" name="size">
+                <option value="" disabled selected>Select size of the house</option>
+                {% for house_size in sizes %}
+                    <option value="{{ house_size }}">{{ house_size }} sqft</option>
+                {% endfor %}
+            </select>
+
+            <label for="zip_code">Zip Code:</label>
+            <select id="zip_code" name="zip_code">
+                <option value="" disabled selected>Select zip code</option>
+                {% for zip_code in zip_codes %}
+                    <option value="{{ zip_code }}">{{ zip_code }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" onclick="sendData()">Predict Price</button>
+
+            <div id="predictedPrice"></div>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 House Price Prediction. All rights reserved.</p>
+    </footer>
+    <script>
+        function fetchOptions(endpoint, dropdownId) {
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    const dropdown = document.getElementById(dropdownId);
+                    dropdown.innerHTML = '<option value="" disabled selected>Select an option</option>';
+                    data.forEach(option => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        dropdown.appendChild(optionElement);
+                    });
+                });
+        }
+
+        window.onload = function() {
+            fetchOptions('/bedrooms', 'beds');
+            fetchOptions('/bathrooms', 'baths');
+            fetchOptions('/sizes', 'size');
+            fetchOptions('/zip_codes', 'zip_code');
+        };
+
+        function sendData() {
+            const form = document.getElementById('predictionForm');
+            const formData = new FormData(form);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(price => {
+                document.getElementById("predictedPrice").innerHTML = `Prediction Price is: ${price} INR ` ;
+            });
+        }
+    </script>
+</body>
+</html>
